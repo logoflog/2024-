@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>气象数据地图</title>
+    <script src="../static/js/echarts.js"></script>
+    <script src="../static/js/china.js"></script>
+    <script src="../static/js/jquery-3.5.1.js"></script>
+    <link rel="stylesheet" href="../static/css/styles.css"/>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css" />
+    <style>
+      table thead,
+      tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+      }
+      tr th {
+        text-align: center;
+        font-weight: bold;
+        font-size: larger;
+      }
+
+      table thead {
+        width: calc(100% - 1.2em);
+      }
+
+      tr td {
+        color: #ffffff;
+        text-align: center;
+      }
+
+      table tbody {
+        display: block;
+        height: 115px;
+        overflow-y: scroll;
+      }
+
+    .popup1 {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 2%;
+        width: 120px;
+        height: 60px;
+        padding: 10px;
+        color: #000000;
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 1);
+        border-radius: 20px;
+    }
+
+    /* 当鼠标悬停在.cont_container，显示.popup */
+    .ordinary:hover .popup1 {
+        display: block;
+        object-fit: cover;
+    }
+
+    .popup2 {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 210px;
+        height: 70px;
+        padding: 10px;
+        color: #000000;
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 1);
+        border-radius: 20px;
+    }
+
+    /* 当鼠标悬停在.cont_container，显示.popup */
+    .cont_container:hover .popup2 {
+        display: block;
+    }
+    </style>
+  </head>
+  <body style="background-color: #519aba">
+    <div class="header" style="background: #066785;">
+        <span class="ordinary" style="margin-left: 2%; width: 120px; color: #D4D4D4; position: relative;">
+            {% if not request.user.is_authenticated %}
+            <a style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;">访客登录/注册</a>
+            {% else %}
+            <a style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;">{{ request.user.username }}</a>
+            {% endif %}
+            <!-- 在悬停时显示的小页面 -->
+            <div class="popup1">
+                {% if not request.user.is_authenticated %}
+                    <span style="margin-left: 20px;">
+                        <a href="{% url 'login' %}" style="text-decoration: none; cursor: pointer; font-size: 14px;"><b>>>登录<<</b></a>
+                    </span>
+                    <span style="margin-left: 20px;">
+                        <a href="{% url 'register' %}" style="text-decoration: none; cursor: pointer; font-size: 14px;"><b>>>注册<<</b></a>
+                    </span>
+                {% else %}
+                    <span style="font-size: 14px; color:black; margin-left: 20px;">
+                        <b>{{ request.user.email }}</b>
+                    </span>
+                    <span style="margin-left: 20px;">
+                        <a href="{% url 'logout' %}" style="text-decoration: none; cursor: pointer; font-size: 14px;"><b>>>登出<<</b></a>
+                    </span>
+                {% endif %}
+
+            </div>
+        </span>
+        <span class="retwelcome" style="margin-left: 0; width: 100px; color: #D4D4D4;">
+            <a href="administrator/" style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;">管理员登录</a>
+        </span>
+        <span class="cont_container" style="margin-left: 0; width: 90px; color: #D4D4D4; position: relative;">
+            <a style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;">联系我们</a>
+            <!-- 在悬停时显示的小页面 -->
+            <div class="popup2">
+                <p><b>邮箱</b> admin@admin.com</p>
+                <p><b>电话</b> 18888888888</p>
+            </div>
+        </span>
+    </div>
+
+  <!--************************************************************************************************-->
+    <div class="container" style="height: 100%; width: 100%; margin-top: 60px;">
+      <div id="content-left" class="col-md-9" style="margin-top: 20px">
+        <div id="main" style="width: 100%; height: 800px"></div>
+      </div>
+      <p style="text-align: center; color: #FFFFFF; font-size: 18px;">点击地图上对应站点查看详细信息</p>
+      <div class="col-md-3 table-responsive" style="margin-top: 25%;">
+        <table class="table table-bordered" style="margin-top: 20px;">
+          <thead style="border-radius: 5px;">
+            <tr>
+              <th style="color: #ffffff">站点名称</th>
+              <th style="color: #ffffff">记录条数</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </body>
+  <script>
+      var myChart = echarts.init(document.getElementById('main'));
+
+      $(function () {
+          let table = $("#tbody");
+
+          // 使用从数据库中读取的地理数据
+          let stationData = {{ station_data|safe }};
+          let res = stationData.map(function(item) {
+              return {
+                  name: item.name,
+                  value: [item.longitude, item.latitude],  // 假设经度在前，纬度在后
+                  sales: item.data_count
+              };
+          });
+
+          dealWithData(res);
+
+          let row = stationData.map(function(item) {
+              return "<tr><td>" + item.name + "</td>" +
+                  '<td>' + item.data_count + '</td></tr>';
+          });
+
+          table.append(row.join());
+      });
+
+      function dealWithData(data) {
+          let dataValue = data;
+          option = {
+              title: {
+                  text: '数据地图展示',
+                  x: 'center',
+                  textStyle: {
+                      color: '#fff',
+                      fontSize: "40"
+                  }
+              },
+              tooltip: {
+                  show: true,
+                  triggerOn: 'click'
+              },
+              geo: {
+                  map: 'china',
+                  roam: false,
+                  zoom: 1.235,
+                  center: [105, 36],
+                  itemStyle: {
+                      areaColor: '#f5f2f2',
+                      borderColor: "#835f5f",
+                  },
+                  label: {
+                      normal: {
+                          show: true,
+                          fontSize: "11.5",
+                          color: "rgb(107,102,102)"
+                      }
+                  },
+                  emphasis: {
+                      itemStyle: {
+                          areaColor: '#d0a3a3',
+                      },
+                      label: {
+                          show: true,
+                          color: "rgb(255,255,255)"
+                      }
+                  }
+              },
+              series: [
+                  {
+                      name: '数据数',
+                      type: 'scatter',
+                      coordinateSystem: 'geo',
+                      data: dataValue,
+                      symbolSize: 12,
+                      itemStyle: {
+                          color: "#f13434",
+                          shadowBlur: 2,
+                          shadowColor: "#333"
+                      },
+                      tooltip: {
+                          show: true,
+                          triggerOn: "click",
+                          formatter: function (data1) {
+                              let data2 = data1.data;
+                              return "<b>数据数<b><br>" + data2.name + data2.sales
+                          },
+                      },
+                  },
+
+                  {
+                      name: "数据数",
+                      type: "effectScatter",
+                      coordinateSystem: "geo",
+                      data: dataValue,
+                      symbolSize: 6,
+                      showEffectOn: "render",
+                      rippleEffect: {
+                          brushType: "stroke",
+                          color: "#f13434",
+                          period: 10,
+                          scale: 10
+                      },
+                      hoverAnimation: true,
+                      label: {
+                          formatter: "{b}",
+                          position: "top",
+                          show: true,
+                          fontSize: "10",
+                      },
+                      itemStyle: {
+                          color: "#f13434",
+                          shadowBlur: 2,
+                          shadowColor: "#333"
+                      },
+                      tooltip: {
+                          show: true,
+                          triggerOn: "click",
+                          formatter: function (data1) {
+                              let data2 = data1.data;
+                              return "<b>数据数<b><br>" + data2.name + data2.sales
+                          }
+                      },
+                      zlevel: 1
+                  }
+              ]
+          };
+
+          myChart.setOption(option);
+      }
+
+      myChart.on('click', function (param) {
+          let data = param.data;
+          if (data) {
+              console.log("检测点名称：" + data.name + ";坐标：" + data.value + ";数据量：" + data.sales);
+              window.location.href = "/datashow?city=" + data.name;//此处输入想要跳转的子页面
+          }
+      });
+  </script>
+</html>

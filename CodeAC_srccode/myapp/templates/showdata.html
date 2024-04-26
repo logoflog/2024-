@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据展示</title>
+    <script src="../static/js/scripts.js" defer></script>
+    <link rel="stylesheet" href="../static/css/styles.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+    <script>
+        function navigateToPage() {
+            // 获取选择框的值
+            var selectedValue = document.getElementById("selectPage").value;
+
+            // 如果有选择的值，则跳转到相应页面
+            if (selectedValue) {
+                console.log("检测点名称：" + selectedValue);
+                window.location.href = "/datashow?city=" + selectedValue;//此处输入想要跳转的子页面
+            }
+        }
+    </script>
+</head>
+<body style="background-color: #A7A8CD;">
+    <div class="header">
+        <span class="retwelcome" style="margin-left: 2%; width: 90px; color: #D4D4D4;">
+            <a href="/" style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;">返回首页</a>
+        </span>
+        <span class="dwloadfile" style="margin-left: 0; width: 90px; color: #D4D4D4;">
+            <a href="/download" style="color: #D4D4D4;text-decoration: none; cursor: pointer; font-size: 16px;" >下载文件</a>
+        </span>
+        <span class="otherstat" style="margin-left: 0; width: 100px; color: #D4D4D4;">
+            <label for="selectPage" ></label>
+            <select id="selectPage" onchange="navigateToPage()">
+                {% for item in name %}
+                    {% if item == city %}
+                        <option selected>{{ item }}</option>
+                    {% else %}
+                        <option>{{ item }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+        </span>
+    </div>
+    <div style=" display: flex; align-items: center; justify-items: center;">
+    <section class="wrapper">
+        <i class="fa-solid fa-arrow-left button" id="prev"></i>
+        <div class="html-container">
+            <div class="carousel">
+                <iframe src="../static/html/{{ stat }}/dew.html"></iframe>
+                <iframe src="../static/html/{{ stat }}/slp.html"></iframe>
+                <iframe src="../static/html/{{ stat }}/tmp.html"></iframe>
+                <iframe src="../static/html/{{ stat }}/vis.html"></iframe>
+                <iframe src="../static/html/{{ stat }}/wnddire.html"></iframe>
+                <iframe src="../static/html/{{ stat }}/wndsped.html"></iframe>
+            </div>
+            <i class="fa-solid fa-arrow-right button" id="next"></i>
+        </div>
+    </section>
+    <section class="readme">
+        <div class="readme-container">
+            <div class="readme-carousel">
+                <div class="text-box" contentEditable="false">
+                    <h1>露点数据分析</h1><br>
+                    {% for key, item in dew_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.0 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.0|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：露点指露水凝结的温度，单位是摄氏度(°C)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.0.upt|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.0.lwt|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">均值为{{analy.0.avg|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">方差为{{analy.0.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.0.cv|floatformat:2}}</p>
+                </div>
+                <div class="text-box" contentEditable="false">
+                    <h1>气压数据分析</h1><br>
+                    {% for key, item in slp_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.1 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.1|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：气压指在地球上海平面(海拔0米)上的大气压力，单位是百帕(hPa)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.1.upt|floatformat:2}}hPa，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.1.lwt|floatformat:2}}hPa，</p>
+                    <p style="font-size: 19px;">均值为{{analy.1.avg|floatformat:2}}hPa，</p>
+                    <p style="font-size: 19px;">方差为{{analy.1.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.1.cv|floatformat:2}}</p>
+                </div>
+                <div class="text-box" contentEditable="false">
+                    <h1>气温数据分析</h1><br>
+                    {% for key, item in tmp_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.2 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.2|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：气温指大气温度，单位是摄氏度(°C)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.2.upt|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.2.lwt|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">均值为{{analy.2.avg|floatformat:2}}°C，</p>
+                    <p style="font-size: 19px;">方差为{{analy.2.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.2.cv|floatformat:2}}</p>
+                </div>
+                <div class="text-box" contentEditable="false">
+                    <h1>可视距离数据分析</h1><br>
+                    {% for key, item in vis_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.3 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.3|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：可视距离指能够看到并辨认物体的水平距离，单位是米(m)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.3.upt|floatformat:2}}m，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.3.lwt|floatformat:2}}m，</p>
+                    <p style="font-size: 19px;">均值为{{analy.3.avg|floatformat:2}}m，</p>
+                    <p style="font-size: 19px;">方差为{{analy.3.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.3.cv|floatformat:2}}</p>
+                </div>
+                <div class="text-box" contentEditable="false">
+                    <h1>风向数据分析</h1><br>
+                    {% for key, item in dire_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.4 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.4|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：风向指是风向角，是从正北方向开始，按照顺时针方向测量的风吹来的方向与正北方向之间的角度，可单位是度(°)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.4.upt|floatformat:2}}°，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.4.lwt|floatformat:2}}°，</p>
+                    <p style="font-size: 19px;">均值为{{analy.4.avg|floatformat:2}}°，</p>
+                    <p style="font-size: 19px;">方差为{{analy.4.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.4.cv|floatformat:2}}</p>
+                </div>
+                <div class="text-box" contentEditable="false">
+                    <h1>风速数据分析</h1><br>
+                    {% for key, item in sped_conf.items %}
+                    <p style="font-size: 19px;">可信度为<b>{{ key }}</b>的数据记录有<b>{{ item }}</b>条，</p>
+                    {% endfor %}<br>
+                    {% if reli.5 < 0.9 %}
+                    <p style="font-size: 18px; text-align: left;">不可靠数据占比超过<b>10%</b>，请谨慎使用。</p>
+                    {% else %}
+                    <p style="font-size: 18px; text-align: left;">可靠数据占比达到<b>{{reli.5|floatformat:4}}</b>，可信度高。</p>
+                    {% endif %}
+                    <p style="font-size: 17px; text-align: left;">
+                        <b>温馨提示</b>：风速指风的速度，单位是是米每秒(m/s)，其可信度越高代表数据越可靠，可信度为0代表数据记录缺失，缺失的数据用能表示范围的最高值表示。
+                    </p>
+                    <br>
+                    <p style="font-size: 20px; text-align: left;"><b>该站点露点数据序列的数据记录中剔除可靠度小于2的数据后，剩余数据的特征如下：</b></p><br>
+                    <p style="font-size: 19px;">最高值为{{analy.5.upt|floatformat:2}}m/s，</p>
+                    <p style="font-size: 19px;">最低值为{{analy.5.lwt|floatformat:2}}m/s，</p>
+                    <p style="font-size: 19px;">均值为{{analy.5.avg|floatformat:2}}m/s，</p>
+                    <p style="font-size: 19px;">方差为{{analy.5.var|floatformat:2}}，</p>
+                    <p style="font-size: 19px;">变异系数为{{analy.5.cv|floatformat:2}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+</body>
+</html>

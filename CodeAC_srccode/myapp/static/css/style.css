@@ -1,0 +1,111 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    <!--justify-content: center;-->
+    background: #FDF7FF;
+    border: 2px solid #fff;
+}
+.wrapper{
+    display: flex;
+    width: 1150px;
+    height: 700px;
+    align-items: center;
+    border: 2px solid #fff;
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0);
+}
+.wrapper i.button{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60px;
+    width: 60px;
+    background: #343f4f;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 60px;
+    color: #fff;
+    font-size:30px;
+    transition: all 0.3s linear;
+    cursor: pointer;
+    z-index: 100;
+}
+i.button:active{
+    transform: scale(0.94) translateY(-50%);
+}
+i#prev{
+    left: 25px;
+}
+i#next{
+    right: 25px;
+}
+.html-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    border-radius: 30px;
+}
+.html-container .carousel{
+    display: flex;
+    align-items: center;
+    border: 2px solid #fff;
+    border-radius: 30px;
+    transition: all 0.4s ease;
+    align-items: center;
+}
+.carousel iframe{
+    width: 1150px;
+    height: 700px;
+    border: 10px solid #fff;
+    object-fit: cover;
+    border-radius: 30px;
+    background: #D7D7E5;
+}
+
+.readme {
+      width: 700px;
+      height: 700px;
+      margin-right: 20px;
+      overflow: hidden;
+      border-radius: 30px;
+}
+.readme-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+      border-radius: 30px;
+}
+.readme-container .readme-carousel {
+      display: flex;
+      flex-direction: column; /* 使其纵向排列 */
+      align-items: center;
+      border: 2px solid #fff;
+      border-radius: 30px;
+      transition: all 0.4s ease;
+}
+.readme-carousel .text-box {
+      width: 700px;
+      height: 700px;
+      border: 10px solid #fff;
+      object-fit: cover;
+      border-radius: 30px;
+      margin-bottom: 10px;
+      font-size: 16px; /* 适当调整字体大小 */
+      line-height: 1.5; /* 适当调整行高 */
+      padding: 10px; /* 适当调整内边距 */
+      overflow: auto; /* 允许滚动以适应大量文本 */
+}
+.readme-carousel .text-box[contentEditable="false"] {
+      background-color: #D7D7E5; /* 适当调整只读状态的背景颜色 */
+      color: #666; /* 适当调整只读状态的文字颜色 */
+}
